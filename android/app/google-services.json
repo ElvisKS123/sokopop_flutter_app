@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1099152154419",
+    "project_id": "sokopop",
+    "storage_bucket": "sokopop.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1099152154419:android:00c230be1b7e22bc8f2846",
+        "android_client_info": {
+          "package_name": "com.example.sokopop_flutter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCX4jDG4X-1sgbnVFyB3RsiynWH1UFApUM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
