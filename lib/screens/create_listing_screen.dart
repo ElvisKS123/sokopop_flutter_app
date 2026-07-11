@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../providers/listing_provider.dart';
+import '../models/data.dart';
 
 class CreateListingSheet extends StatefulWidget {
   const CreateListingSheet({super.key});
@@ -15,8 +19,72 @@ class _CreateListingSheetState extends State<CreateListingSheet> {
   final _locationCtrl = TextEditingController();
   String _selectedCategory = 'Textbooks / Electronics / Clothing';
   String _selectedCondition = '';
+  bool _isPosting = false;
 
   final List<String> _conditions = ['New', 'Like New', 'Good', 'Fair'];
+
+  Future<void> _postListing() async {
+    if (_titleCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a title')),
+      );
+      return;
+    }
+    if (_selectedCondition.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a condition')),
+      );
+      return;
+    }
+
+    setState(() => _isPosting = true);
+
+    final user = FirebaseAuth.instance.currentUser;
+    final name = user?.displayName ?? user?.email ?? 'ALU Student';
+    final initials = name.trim().split(' ').map((e) => e[0]).take(2).join().toUpperCase();
+
+    final listing = Listing(
+      id: '',
+      title: _titleCtrl.text.trim(),
+      category: _selectedCategory == 'Textbooks / Electronics / Clothing'
+          ? 'Other'
+          : _selectedCategory,
+      price: int.tryParse(_priceCtrl.text.trim()) ?? 0,
+      condition: _selectedCondition,
+      description: _descCtrl.text.trim(),
+      sellerName: name,
+      sellerInitials: initials,
+      sellerRating: 0.0,
+      sellerReviews: 0,
+      isVerified: true,
+      meetupLocation: _locationCtrl.text.trim(),
+      imageUrl: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=300&fit=crop',
+      sellerId: user?.uid ?? '',
+      status: 'active',
+      createdAt: DateTime.now(),
+    );
+
+    try {
+      await context.read<ListingProvider>().createListing(listing);
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Listing posted successfully! 🎉'),
+            backgroundColor: AppTheme.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to post: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isPosting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,22 +112,22 @@ class _CreateListingSheetState extends State<CreateListingSheet> {
                     ),
                     Text('New listing', style: AppTheme.bodyLg.copyWith(fontWeight: FontWeight.w700)),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Listing posted successfully! 🎉'),
-                            backgroundColor: AppTheme.primary,
-                          ),
-                        );
-                      },
+                      onPressed: _isPosting ? null : _postListing,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
-                      child: const Text('Post', style: TextStyle(fontWeight: FontWeight.w700)),
+                      child: _isPosting
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2),
+                            )
+                          : const Text('Post',
+                              style: TextStyle(fontWeight: FontWeight.w700)),
                     ),
                   ],
                 ),
