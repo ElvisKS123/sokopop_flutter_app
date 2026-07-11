@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../models/data.dart';
 import '../widgets/shared_widgets.dart';
 import '../utils/formatters.dart';
+import '../providers/listing_provider.dart';
 import 'chat_screen.dart';
 import 'meetup_screen.dart';
 
@@ -18,8 +21,67 @@ class ListingDetailsScreen extends StatefulWidget {
 class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
   int _currentImage = 0;
 
-  // Price formatting moved to lib/utils/formatters.dart
+  bool get _isOwner =>
+      FirebaseAuth.instance.currentUser?.uid == widget.listing.sellerId;
 
+  Future<void> _markAsSold() async {
+    try {
+      await context.read<ListingProvider>().markAsSold(widget.listing.id);
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Listing marked as sold!'),
+            backgroundColor: AppTheme.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteListing() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete listing?'),
+        content: const Text('This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    try {
+      await context.read<ListingProvider>().deleteListing(widget.listing.id);
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Listing deleted.')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +98,41 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
         title: Text('Listing details',
             style: AppTheme.bodyLg.copyWith(fontWeight: FontWeight.w600)),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined, color: AppTheme.onSurface),
-            onPressed: () {},
-          ),
+          if (_isOwner)
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: AppTheme.onSurface),
+              onSelected: (value) {
+                if (value == 'sold') _markAsSold();
+                if (value == 'delete') _deleteListing();
+              },
+              itemBuilder: (_) => [
+                const PopupMenuItem(
+                  value: 'sold',
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle_outline, color: AppTheme.primary, size: 18),
+                      SizedBox(width: 8),
+                      Text('Mark as sold'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete_outline, color: Colors.red, size: 18),
+                      SizedBox(width: 8),
+                      Text('Delete listing', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined, color: AppTheme.onSurface),
+              onPressed: () {},
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -70,8 +163,8 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                       color: Colors.black54,
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: Text('1/4',
-                        style: const TextStyle(color: Colors.white, fontSize: 12)),
+                    child: const Text('1/4',
+                        style: TextStyle(color: Colors.white, fontSize: 12)),
                   ),
                 ),
                 Positioned(
@@ -90,7 +183,9 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                         const SizedBox(width: 4),
                         Text(l.category.toUpperCase(),
                             style: const TextStyle(
-                                color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700)),
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700)),
                       ],
                     ),
                   ),
@@ -102,25 +197,21 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title + share
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(l.title,
-                            style: AppTheme.headlineSm),
-                      ),
+                      Expanded(child: Text(l.title, style: AppTheme.headlineSm)),
                       IconButton(
-                        icon: const Icon(Icons.ios_share_outlined, color: AppTheme.onSurface),
+                        icon: const Icon(Icons.ios_share_outlined,
+                            color: AppTheme.onSurface),
                         onPressed: () {},
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-Text('RWF ${formatPriceWithCommas(l.price)}',
+                  Text('RWF ${formatPriceWithCommas(l.price)}',
                       style: AppTheme.priceDisplay.copyWith(fontSize: 22)),
                   const SizedBox(height: 12),
-                  // Tags
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
@@ -128,19 +219,19 @@ Text('RWF ${formatPriceWithCommas(l.price)}',
                       _tag(l.condition, Icons.check_circle_outline, AppTheme.primary,
                           AppTheme.secondaryContainer.withOpacity(0.4)),
                       if (l.isNegotiable)
-                        _tag('Negotiable', null, AppTheme.onSurface, AppTheme.surfaceContainerHigh),
-                      _tag('In-person pickup', null, AppTheme.onSurface, AppTheme.surfaceContainerHigh),
+                        _tag('Negotiable', null, AppTheme.onSurface,
+                            AppTheme.surfaceContainerHigh),
+                      _tag('In-person pickup', null, AppTheme.onSurface,
+                          AppTheme.surfaceContainerHigh),
                     ],
                   ),
                   const SizedBox(height: 20),
-                  // Description
                   Text('DESCRIPTION',
                       style: AppTheme.labelMd
                           .copyWith(color: AppTheme.onSurfaceVariant, letterSpacing: 1)),
                   const SizedBox(height: 8),
                   Text(l.description, style: AppTheme.bodyMd.copyWith(height: 1.6)),
                   const SizedBox(height: 20),
-                  // Seller card
                   GestureDetector(
                     onTap: () {},
                     child: Container(
@@ -148,7 +239,8 @@ Text('RWF ${formatPriceWithCommas(l.price)}',
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+                        border: Border.all(
+                            color: AppTheme.outlineVariant.withOpacity(0.5)),
                       ),
                       child: Row(
                         children: [
@@ -157,7 +249,8 @@ Text('RWF ${formatPriceWithCommas(l.price)}',
                             backgroundColor: AppTheme.secondaryContainer,
                             child: Text(l.sellerInitials,
                                 style: const TextStyle(
-                                    color: AppTheme.primary, fontWeight: FontWeight.w700)),
+                                    color: AppTheme.primary,
+                                    fontWeight: FontWeight.w700)),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -165,13 +258,16 @@ Text('RWF ${formatPriceWithCommas(l.price)}',
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(l.sellerName,
-                                    style: AppTheme.bodyLg.copyWith(fontWeight: FontWeight.w700)),
+                                    style: AppTheme.bodyLg
+                                        .copyWith(fontWeight: FontWeight.w700)),
                                 Row(
                                   children: [
-                                    const Icon(Icons.star, color: Color(0xFFF59E0B), size: 14),
-                                    Text(' ${l.sellerRating} (${l.sellerReviews} reviews)',
-                                        style: AppTheme.labelMd
-                                            .copyWith(color: AppTheme.onSurfaceVariant)),
+                                    const Icon(Icons.star,
+                                        color: Color(0xFFF59E0B), size: 14),
+                                    Text(
+                                        ' ${l.sellerRating} (${l.sellerReviews} reviews)',
+                                        style: AppTheme.labelMd.copyWith(
+                                            color: AppTheme.onSurfaceVariant)),
                                   ],
                                 ),
                                 Text('Verified ALU Student',
@@ -186,19 +282,19 @@ Text('RWF ${formatPriceWithCommas(l.price)}',
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Pickup location
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+                      border: Border.all(
+                          color: AppTheme.outlineVariant.withOpacity(0.5)),
                     ),
                     child: Row(
                       children: [
                         Container(
                           padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppTheme.surfaceContainerLow,
                             shape: BoxShape.circle,
                           ),
@@ -224,7 +320,8 @@ Text('RWF ${formatPriceWithCommas(l.price)}',
                             color: AppTheme.surfaceContainerHigh,
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(Icons.map_outlined, color: AppTheme.outline),
+                          child: const Icon(Icons.map_outlined,
+                              color: AppTheme.outline),
                         ),
                       ],
                     ),
@@ -261,7 +358,8 @@ Text('RWF ${formatPriceWithCommas(l.price)}',
                     backgroundColor: AppTheme.primary,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                 ),
               ),
@@ -271,13 +369,16 @@ Text('RWF ${formatPriceWithCommas(l.price)}',
                 child: OutlinedButton(
                   onPressed: () => Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => MeetupScreen(listing: l)),
+                    MaterialPageRoute(
+                        builder: (_) => MeetupScreen(listing: l)),
                   ),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTheme.primary,
-                    side: const BorderSide(color: AppTheme.outlineVariant, width: 1.5),
+                    side: const BorderSide(
+                        color: AppTheme.outlineVariant, width: 1.5),
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
                   child: const Text('Meet up',
                       style: TextStyle(fontWeight: FontWeight.w600)),
@@ -301,8 +402,15 @@ Text('RWF ${formatPriceWithCommas(l.price)}',
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[Icon(icon, size: 13, color: textColor), const SizedBox(width: 4)],
-          Text(label, style: TextStyle(color: textColor, fontSize: 12, fontWeight: FontWeight.w500)),
+          if (icon != null) ...[
+            Icon(icon, size: 13, color: textColor),
+            const SizedBox(width: 4)
+          ],
+          Text(label,
+              style: TextStyle(
+                  color: textColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500)),
         ],
       ),
     );
