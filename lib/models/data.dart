@@ -13,6 +13,9 @@ class Listing {
   final String meetupLocation;
   final String imageUrl;
   final bool isNegotiable;
+  final String sellerId;
+  final String status;
+  final DateTime? createdAt;
 
   const Listing({
     required this.id,
@@ -29,7 +32,55 @@ class Listing {
     required this.meetupLocation,
     required this.imageUrl,
     this.isNegotiable = false,
+    this.sellerId = '',
+    this.status = 'active',
+    this.createdAt,
   });
+
+  // Convert Listing to a Map for Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'category': category,
+      'price': price,
+      'condition': condition,
+      'description': description,
+      'sellerName': sellerName,
+      'sellerInitials': sellerInitials,
+      'sellerRating': sellerRating,
+      'sellerReviews': sellerReviews,
+      'isVerified': isVerified,
+      'meetupLocation': meetupLocation,
+      'imageUrl': imageUrl,
+      'isNegotiable': isNegotiable,
+      'sellerId': sellerId,
+      'status': status,
+      'createdAt': createdAt ?? DateTime.now(),
+    };
+  }
+
+  // Convert Firestore data back to a Listing object
+  factory Listing.fromMap(String id, Map<String, dynamic> map) {
+    return Listing(
+      id: id,
+      title: map['title'] ?? '',
+      category: map['category'] ?? '',
+      price: (map['price'] ?? 0).toInt(),
+      condition: map['condition'] ?? '',
+      description: map['description'] ?? '',
+      sellerName: map['sellerName'] ?? '',
+      sellerInitials: map['sellerInitials'] ?? '',
+      sellerRating: (map['sellerRating'] ?? 0.0).toDouble(),
+      sellerReviews: (map['sellerReviews'] ?? 0).toInt(),
+      isVerified: map['isVerified'] ?? false,
+      meetupLocation: map['meetupLocation'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      isNegotiable: map['isNegotiable'] ?? false,
+      sellerId: map['sellerId'] ?? '',
+      status: map['status'] ?? 'active',
+      createdAt: map['createdAt']?.toDate(),
+    );
+  }
 }
 
 class Message {

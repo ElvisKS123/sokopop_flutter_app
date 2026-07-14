@@ -5,6 +5,9 @@ import '../widgets/shared_widgets.dart';
 import '../utils/formatters.dart';
 import 'listing_details_screen.dart';
 import 'home_screen.dart';
+import 'package:provider/provider.dart';
+import '../providers/listing_provider.dart';
+
 
 class BrowseScreen extends StatefulWidget {
   const BrowseScreen({super.key});
@@ -21,9 +24,23 @@ class _BrowseScreenState extends State<BrowseScreen> {
   final _searchCtrl = TextEditingController(text: 'Textbooks');
 
   final List<String> _categories = ['All', 'Books', 'Clothing', 'Electronics'];
+    @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ListingProvider>().fetchListings();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   List<Listing> get _filtered {
-    var list = sampleListings.toList();
+    final provider = context.read<ListingProvider>();
+    var list = provider.listings.toList();
     if (_selectedCategory != 'All') {
       final map = {'Books': 'Textbooks', 'Clothing': 'Clothing', 'Electronics': 'Electronics'};
       list = list.where((l) => l.category == map[_selectedCategory]).toList();
@@ -35,11 +52,12 @@ class _BrowseScreenState extends State<BrowseScreen> {
       list.sort((a, b) => b.price.compareTo(a.price));
     }
     return list;
-  }
+}
 
   @override
   Widget build(BuildContext context) {
-    final items = _filtered;
+    final provider = context.watch<ListingProvider>();
+    final items = provider.isLoading ? <Listing>[] : _filtered;
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +149,9 @@ class _BrowseScreenState extends State<BrowseScreen> {
           ),
           // Grid
           Expanded(
-            child: GridView.builder(
+            child: provider.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : GridView.builder(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,

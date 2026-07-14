@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/auth_provider.dart';
+import 'providers/listing_provider.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
 import 'screens/sign_in_screen.dart';
@@ -17,9 +18,6 @@ import 'screens/notifications_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Connect the app to our Firebase project.
-  // - On Chrome (web): uses the config below
-  // - On Android: uses android/app/google-services.json automatically
   if (kIsWeb) {
     await Firebase.initializeApp(
       options: const FirebaseOptions(
@@ -51,8 +49,11 @@ class SokopopApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ListingProvider()),
+      ],
       child: MaterialApp(
         title: 'Sokopop',
         debugShowCheckedModeBanner: false,
