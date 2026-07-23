@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-import '../data/repositories/auth_repository.dart';
+import 'package:sokopop_flutter_app/features/auth/data/datasources/auth_remote_data_source.dart';
 
 /// Presentation-layer state management (Provider / ChangeNotifier).
 /// Screens listen to this class instead of calling Firebase directly.

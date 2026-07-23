@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../models/data.dart';
-import '../utils/formatters.dart';
-import 'chat_screen.dart';
+import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
+import 'package:sokopop_flutter_app/models/data.dart';
+import 'package:sokopop_flutter_app/core/utils/formatters.dart';
+import 'package:sokopop_flutter_app/features/messaging/presentation/screens/chat_screen.dart';
 
 class MeetupScreen extends StatefulWidget {
   final Listing listing;

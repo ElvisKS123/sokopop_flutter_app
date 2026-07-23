@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../models/data.dart';
-import 'chat_screen.dart';
+import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
+import 'package:sokopop_flutter_app/models/data.dart';
+import 'package:sokopop_flutter_app/features/messaging/presentation/screens/chat_screen.dart';
 
 class MessagesScreen extends StatelessWidget {
   const MessagesScreen({super.key});

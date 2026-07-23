@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import 'notifications_screen.dart';
+import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
+import 'package:sokopop_flutter_app/features/profile/presentation/screens/notifications_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

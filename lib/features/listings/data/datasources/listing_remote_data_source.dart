@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/data.dart';
+import 'package:sokopop_flutter_app/models/data.dart';
 
 class ListingService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
 
 class SokoAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;

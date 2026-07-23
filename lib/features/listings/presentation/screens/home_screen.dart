@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../models/data.dart';
-import '../widgets/shared_widgets.dart';
-import '../utils/formatters.dart';
-import 'listing_details_screen.dart';
-import 'browse_screen.dart';
-import 'messages_screen.dart';
-import 'profile_screen.dart';
-import 'create_listing_screen.dart';
-import 'notifications_screen.dart';
+import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
+import 'package:sokopop_flutter_app/models/data.dart';
+import 'package:sokopop_flutter_app/shared/widgets/shared_widgets.dart';
+import 'package:sokopop_flutter_app/core/utils/formatters.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/screens/listing_details_screen.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/screens/browse_screen.dart';
+import 'package:sokopop_flutter_app/features/messaging/presentation/screens/messages_screen.dart';
+import 'package:sokopop_flutter_app/features/profile/presentation/screens/profile_screen.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/screens/create_listing_screen.dart';
+import 'package:sokopop_flutter_app/features/profile/presentation/screens/notifications_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

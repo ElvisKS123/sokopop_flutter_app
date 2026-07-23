@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/data.dart';
-import '../services/listing_service.dart';
+import 'package:sokopop_flutter_app/models/data.dart';
+import 'package:sokopop_flutter_app/features/listings/data/datasources/listing_remote_data_source.dart';
 
 class ListingProvider extends ChangeNotifier {
   final ListingService _service = ListingService();

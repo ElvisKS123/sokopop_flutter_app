@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import '../theme/app_theme.dart';
-import '../models/data.dart';
-import '../widgets/shared_widgets.dart';
-import '../utils/formatters.dart';
-import '../providers/listing_provider.dart';
-import 'chat_screen.dart';
-import 'meetup_screen.dart';
+import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
+import 'package:sokopop_flutter_app/models/data.dart';
+import 'package:sokopop_flutter_app/shared/widgets/shared_widgets.dart';
+import 'package:sokopop_flutter_app/core/utils/formatters.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/providers/listing_provider.dart';
+import 'package:sokopop_flutter_app/features/messaging/presentation/screens/chat_screen.dart';
+import 'package:sokopop_flutter_app/features/meetup/presentation/screens/meetup_screen.dart';
 
 class ListingDetailsScreen extends StatefulWidget {
   final Listing listing;

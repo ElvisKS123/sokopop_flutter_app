@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
-import '../models/data.dart';
-import '../widgets/shared_widgets.dart';
-import '../utils/formatters.dart';
-import 'listing_details_screen.dart';
-import 'home_screen.dart';
+import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
+import 'package:sokopop_flutter_app/models/data.dart';
+import 'package:sokopop_flutter_app/shared/widgets/shared_widgets.dart';
+import 'package:sokopop_flutter_app/core/utils/formatters.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/screens/listing_details_screen.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/screens/home_screen.dart';
 import 'package:provider/provider.dart';
-import '../providers/listing_provider.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/providers/listing_provider.dart';
 
 
 class BrowseScreen extends StatefulWidget {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../providers/listing_provider.dart';
-import '../models/data.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/providers/listing_provider.dart';
+import 'package:sokopop_flutter_app/models/data.dart';
 
 class CreateListingSheet extends StatefulWidget {
   const CreateListingSheet({super.key});

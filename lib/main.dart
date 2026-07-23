@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import 'providers/auth_provider.dart';
-import 'providers/listing_provider.dart';
-import 'theme/app_theme.dart';
-import 'screens/splash_screen.dart';
-import 'screens/sign_in_screen.dart';
-import 'screens/create_account_screen.dart';
-import 'screens/forgot_password_screen.dart';
-import 'screens/home_screen.dart';
-import 'screens/notifications_screen.dart';
+import 'package:sokopop_flutter_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/providers/listing_provider.dart';
+import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
+import 'package:sokopop_flutter_app/features/auth/presentation/screens/splash_screen.dart';
+import 'package:sokopop_flutter_app/features/auth/presentation/screens/sign_in_screen.dart';
+import 'package:sokopop_flutter_app/features/auth/presentation/screens/create_account_screen.dart';
+import 'package:sokopop_flutter_app/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/screens/home_screen.dart';
+import 'package:sokopop_flutter_app/features/profile/presentation/screens/notifications_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
