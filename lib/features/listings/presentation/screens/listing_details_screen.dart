@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
 import 'package:sokopop_flutter_app/features/listings/domain/entities/listing.dart';
@@ -20,33 +19,33 @@ class ListingDetailsScreen extends StatefulWidget {
 }
 
 class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
-  int _currentImage = 0;
-
-  bool get _isOwner =>
-      FirebaseAuth.instance.currentUser?.uid == widget.listing.sellerId;
+  /// Ownership is a domain rule (`Listing.isOwnedBy`) reached through the
+  /// provider, not a Firebase lookup performed by the widget.
+  bool get _isOwner => context.read<ListingProvider>().isOwner(widget.listing);
 
   Future<void> _markAsSold() async {
-    try {
-      await context.read<ListingProvider>().markAsSold(widget.listing.id);
-      if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Listing marked as sold!'),
-            backgroundColor: AppTheme.primary,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
+    final listings = context.read<ListingProvider>();
+    final success = await listings.markAsSold(widget.listing);
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Listing marked as sold!'),
+          backgroundColor: AppTheme.primary,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(listings.error ?? 'Could not update listing.')),
+      );
+      listings.clearError();
     }
   }
 
   Future<void> _deleteListing() async {
+    final listings = context.read<ListingProvider>();
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
@@ -65,22 +64,21 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
       ),
     );
 
-    if (confirm != true) return;
+    if (confirm != true || !mounted) return;
 
-    try {
-      await context.read<ListingProvider>().deleteListing(widget.listing.id);
-      if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Listing deleted.')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
-      }
+    final success = await listings.deleteListing(widget.listing);
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Listing deleted.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(listings.error ?? 'Could not delete listing.')),
+      );
+      listings.clearError();
     }
   }
 

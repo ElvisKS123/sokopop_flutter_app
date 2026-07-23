@@ -35,8 +35,19 @@ class SokopopApp extends StatelessWidget {
             getLastEmailUseCase: sl(),
           ),
         ),
-        ChangeNotifierProvider<ListingProvider>(
-          create: (_) => ListingProvider(),
+        // Proxy so the listings feature always knows who is signed in,
+        // without importing anything from the auth feature's data layer.
+        ChangeNotifierProxyProvider<AuthProvider, ListingProvider>(
+          create: (_) => ListingProvider(
+            watchActiveListings: sl(),
+            createListingUseCase: sl(),
+            updateListingUseCase: sl(),
+            markAsSoldUseCase: sl(),
+            deleteListingUseCase: sl(),
+            filterListings: sl(),
+          ),
+          update: (_, auth, listings) =>
+              listings!..updateCurrentUser(auth.currentUser?.id),
         ),
       ],
       child: MaterialApp(

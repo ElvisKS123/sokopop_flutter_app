@@ -14,6 +14,15 @@ import 'package:sokopop_flutter_app/features/auth/domain/usecases/sign_in_with_g
 import 'package:sokopop_flutter_app/features/auth/domain/usecases/sign_out.dart';
 import 'package:sokopop_flutter_app/features/auth/domain/usecases/sign_up_with_email.dart';
 import 'package:sokopop_flutter_app/features/auth/domain/usecases/watch_auth_state.dart';
+import 'package:sokopop_flutter_app/features/listings/data/datasources/listing_remote_data_source.dart';
+import 'package:sokopop_flutter_app/features/listings/data/repositories/listing_repository_impl.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/repositories/listing_repository.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/usecases/create_listing.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/usecases/delete_listing.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/usecases/filter_listings.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/usecases/mark_listing_as_sold.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/usecases/update_listing.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/usecases/watch_active_listings.dart';
 
 /// Service locator.
 ///
@@ -53,5 +62,17 @@ Future<void> initDependencies() async {
     ..registerLazySingleton(() => GetLastEmail(sl()));
 
   // ---- Feature: listings -----------------------------------------------
-  // Registered in a follow-up commit, once the listing repository exists.
+  sl
+    ..registerLazySingleton<ListingRemoteDataSource>(
+      () => ListingRemoteDataSourceImpl(firestore: sl()),
+    )
+    ..registerLazySingleton<ListingRepository>(
+      () => ListingRepositoryImpl(remote: sl()),
+    )
+    ..registerLazySingleton(() => WatchActiveListings(sl()))
+    ..registerLazySingleton(() => CreateListing(sl()))
+    ..registerLazySingleton(() => UpdateListing(sl()))
+    ..registerLazySingleton(() => MarkListingAsSold(sl()))
+    ..registerLazySingleton(() => DeleteListing(sl()))
+    ..registerLazySingleton(() => const FilterListings());
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sokopop_flutter_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:sokopop_flutter_app/features/listings/presentation/providers/listing_provider.dart';
 import 'package:sokopop_flutter_app/features/listings/domain/entities/listing.dart';
 
@@ -19,29 +19,14 @@ class _CreateListingSheetState extends State<CreateListingSheet> {
   final _locationCtrl = TextEditingController();
   String _selectedCategory = 'Textbooks / Electronics / Clothing';
   String _selectedCondition = '';
-  bool _isPosting = false;
 
   final List<String> _conditions = ['New', 'Like New', 'Good', 'Fair'];
 
   Future<void> _postListing() async {
-    if (_titleCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a title')),
-      );
-      return;
-    }
-    if (_selectedCondition.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a condition')),
-      );
-      return;
-    }
-
-    setState(() => _isPosting = true);
-
-    final user = FirebaseAuth.instance.currentUser;
-    final name = user?.displayName ?? user?.email ?? 'ALU Student';
-    final initials = name.trim().split(' ').map((e) => e[0]).take(2).join().toUpperCase();
+    // Title / condition / price rules now live in the CreateListing use case,
+    // so this method only gathers input and reports the outcome.
+    final listings = context.read<ListingProvider>();
+    final user = context.read<AuthProvider>().currentUser;
 
     final listing = Listing(
       id: '',
@@ -52,37 +37,35 @@ class _CreateListingSheetState extends State<CreateListingSheet> {
       price: int.tryParse(_priceCtrl.text.trim()) ?? 0,
       condition: _selectedCondition,
       description: _descCtrl.text.trim(),
-      sellerName: name,
-      sellerInitials: initials,
+      sellerName: user?.name ?? 'ALU Student',
+      sellerInitials: user?.initials ?? 'AS',
       sellerRating: 0.0,
       sellerReviews: 0,
-      isVerified: true,
+      isVerified: user?.isVerifiedStudent ?? false,
       meetupLocation: _locationCtrl.text.trim(),
-      imageUrl: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=300&fit=crop',
-      sellerId: user?.uid ?? '',
+      imageUrl:
+          'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=300&fit=crop',
+      sellerId: user?.id ?? '',
       status: 'active',
-      createdAt: DateTime.now(),
+      // createdAt is written by the server, not this device's clock.
     );
 
-    try {
-      await context.read<ListingProvider>().createListing(listing);
-      if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Listing posted successfully! 🎉'),
-            backgroundColor: AppTheme.primary,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to post: $e')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isPosting = false);
+    final success = await listings.createListing(listing);
+    if (!mounted) return;
+
+    if (success) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Listing posted successfully! 🎉'),
+          backgroundColor: AppTheme.primary,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(listings.error ?? 'Could not post listing.')),
+      );
+      listings.clearError();
     }
   }
 
@@ -112,14 +95,16 @@ class _CreateListingSheetState extends State<CreateListingSheet> {
                     ),
                     Text('New listing', style: AppTheme.bodyLg.copyWith(fontWeight: FontWeight.w700)),
                     ElevatedButton(
-                      onPressed: _isPosting ? null : _postListing,
+                      onPressed: context.watch<ListingProvider>().isMutating
+                          ? null
+                          : _postListing,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       ),
-                      child: _isPosting
+                      child: context.watch<ListingProvider>().isMutating
                           ? const SizedBox(
                               width: 16,
                               height: 16,

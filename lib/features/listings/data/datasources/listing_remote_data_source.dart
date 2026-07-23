@@ -1,26 +1,36 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:sokopop_flutter_app/features/listings/data/models/listing_model.dart';
-import 'package:sokopop_flutter_app/features/listings/domain/entities/listing.dart';
 
-class ListingService {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final String _collection = 'listings';
+/// The only file in the listings feature that imports `cloud_firestore`.
+///
+/// Same queries as the original `services/listing_service.dart`; the
+/// difference is that it no longer wraps errors in `Exception('Failed to â€¦: $e')`
+/// â€” raw codes now travel up to the repository, which knows how to word them.
+abstract class ListingRemoteDataSource {
+  Stream<List<ListingModel>> watchActiveListings();
+  Stream<List<ListingModel>> watchListingsBySeller(String sellerId);
+  Future<String> createListing(ListingModel listing);
+  Future<void> updateListing(String listingId, Map<String, dynamic> updates);
+  Future<void> markAsSold(String listingId);
+  Future<void> deleteListing(String listingId);
+}
 
-  // CREATE — add a new listing to Firestore
-  Future<void> createListing(Listing listing) async {
-    try {
-      await _db
-          .collection(_collection)
-          .add(ListingModel.fromEntity(listing).toMap());
-    } catch (e) {
-      throw Exception('Failed to create listing: $e');
-    }
-  }
+class ListingRemoteDataSourceImpl implements ListingRemoteDataSource {
+  const ListingRemoteDataSourceImpl({required FirebaseFirestore firestore})
+      : _db = firestore;
 
-  // READ — get all active listings as a real-time stream
-  Stream<List<Listing>> getListings() {
-    return _db
-        .collection(_collection)
+  final FirebaseFirestore _db;
+
+  static const _collection = 'listings';
+
+  CollectionReference<Map<String, dynamic>> get _listings =>
+      _db.collection(_collection);
+
+  // READ â€” all active listings, live
+  @override
+  Stream<List<ListingModel>> watchActiveListings() {
+    return _listings
         .where('status', isEqualTo: 'active')
         .orderBy('createdAt', descending: true)
         .snapshots()
@@ -29,10 +39,10 @@ class ListingService {
             .toList());
   }
 
-  // READ — get listings by a specific seller
-  Stream<List<Listing>> getListingsBySeller(String sellerId) {
-    return _db
-        .collection(_collection)
+  // READ â€” one seller's listings, live
+  @override
+  Stream<List<ListingModel>> watchListingsBySeller(String sellerId) {
+    return _listings
         .where('sellerId', isEqualTo: sellerId)
         .orderBy('createdAt', descending: true)
         .snapshots()
@@ -41,39 +51,36 @@ class ListingService {
             .toList());
   }
 
-  // UPDATE — mark a listing as sold
-  Future<void> markAsSold(String listingId) async {
-    try {
-      await _db
-          .collection(_collection)
-          .doc(listingId)
-          .update({'status': 'sold'});
-    } catch (e) {
-      throw Exception('Failed to update listing: $e');
-    }
+  // CREATE
+  @override
+  Future<String> createListing(ListingModel listing) async {
+    final ref = await _listings.add(listing.toMap());
+    return ref.id;
   }
 
-  // UPDATE — edit listing details
-  Future<void> updateListing(String listingId, Map<String, dynamic> updates) async {
-    try {
-      await _db
-          .collection(_collection)
-          .doc(listingId)
-          .update(updates);
-    } catch (e) {
-      throw Exception('Failed to update listing: $e');
-    }
+  // UPDATE
+  @override
+  Future<void> updateListing(
+    String listingId,
+    Map<String, dynamic> updates,
+  ) {
+    return _listings.doc(listingId).update({
+      ...updates,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
 
-  // DELETE — remove a listing permanently
-  Future<void> deleteListing(String listingId) async {
-    try {
-      await _db
-          .collection(_collection)
-          .doc(listingId)
-          .delete();
-    } catch (e) {
-      throw Exception('Failed to delete listing: $e');
-    }
+  // UPDATE â€” mark as sold
+  @override
+  Future<void> markAsSold(String listingId) {
+    return _listings.doc(listingId).update({
+      'status': 'sold',
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
   }
+
+  // DELETE
+  @override
+  Future<void> deleteListing(String listingId) =>
+      _listings.doc(listingId).delete();
 }

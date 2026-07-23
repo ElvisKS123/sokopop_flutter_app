@@ -6,6 +6,7 @@ import 'package:sokopop_flutter_app/core/utils/formatters.dart';
 import 'package:sokopop_flutter_app/features/listings/presentation/screens/listing_details_screen.dart';
 import 'package:sokopop_flutter_app/features/listings/presentation/screens/home_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/usecases/filter_listings.dart';
 import 'package:sokopop_flutter_app/features/listings/presentation/providers/listing_provider.dart';
 
 
@@ -17,13 +18,23 @@ class BrowseScreen extends StatefulWidget {
 }
 
 class _BrowseScreenState extends State<BrowseScreen> {
-  String _selectedCategory = 'All';
-  String _sortOption = 'Price Low→High';
-  bool _verifiedOnly = false;
-  bool _isSearching = false;
+  // Category, sort and verified filters used to be setState fields here.
+  // They decide WHICH listings a user sees, which is business logic, so they
+  // now live in ListingProvider and the filtering itself is a use case.
   final _searchCtrl = TextEditingController(text: 'Textbooks');
 
-  final List<String> _categories = ['All', 'Books', 'Clothing', 'Electronics'];
+  /// Chip label -> the category value stored on the listing document.
+  static const Map<String, String> _categories = {
+    'All': 'All',
+    'Books': 'Textbooks',
+    'Clothing': 'Clothing',
+    'Electronics': 'Electronics',
+  };
+
+  static const Map<String, ListingSort> _sortOptions = {
+    'Price Low→High': ListingSort.priceLowToHigh,
+    'Price High→Low': ListingSort.priceHighToLow,
+  };
     @override
   void initState() {
     super.initState();
@@ -38,26 +49,12 @@ class _BrowseScreenState extends State<BrowseScreen> {
     super.dispose();
   }
 
-  List<Listing> get _filtered {
-    final provider = context.read<ListingProvider>();
-    var list = provider.listings.toList();
-    if (_selectedCategory != 'All') {
-      final map = {'Books': 'Textbooks', 'Clothing': 'Clothing', 'Electronics': 'Electronics'};
-      list = list.where((l) => l.category == map[_selectedCategory]).toList();
-    }
-    if (_verifiedOnly) list = list.where((l) => l.isVerified).toList();
-    if (_sortOption == 'Price Low→High') {
-      list.sort((a, b) => a.price.compareTo(b.price));
-    } else {
-      list.sort((a, b) => b.price.compareTo(a.price));
-    }
-    return list;
-}
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ListingProvider>();
-    final items = provider.isLoading ? <Listing>[] : _filtered;
+    // Filtering happens in the FilterListings use case, reached through the
+    // provider. This widget just renders whatever it is handed.
+    final items = provider.isLoading ? <Listing>[] : provider.visibleListings;
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,11 +100,15 @@ class _BrowseScreenState extends State<BrowseScreen> {
                 scrollDirection: Axis.horizontal,
                 itemCount: _categories.length,
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
-                itemBuilder: (_, i) => CategoryChip(
-                  label: _categories[i],
-                  active: _selectedCategory == _categories[i],
-                  onTap: () => setState(() => _selectedCategory = _categories[i]),
-                ),
+                itemBuilder: (_, i) {
+                  final label = _categories.keys.elementAt(i);
+                  final value = _categories.values.elementAt(i);
+                  return CategoryChip(
+                    label: label,
+                    active: provider.category == value,
+                    onTap: () => provider.setCategory(value),
+                  );
+                },
               ),
             ),
           ),
@@ -116,23 +117,23 @@ class _BrowseScreenState extends State<BrowseScreen> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: Row(
               children: [
-                _filterChip(_sortOption, onTap: _showSortSheet),
+                _filterChip(_sortLabel(provider.sort), onTap: _showSortSheet),
                 const SizedBox(width: 8),
                 _filterChip('Condition', onTap: () {}),
                 const Spacer(),
                 GestureDetector(
-                  onTap: () => setState(() => _verifiedOnly = !_verifiedOnly),
+                  onTap: provider.toggleVerifiedOnly,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                     decoration: BoxDecoration(
-                      color: _verifiedOnly ? AppTheme.primary : Colors.white,
+                      color: provider.verifiedOnly ? AppTheme.primary : Colors.white,
                       borderRadius: BorderRadius.circular(999),
                       border: Border.all(
-                          color: _verifiedOnly ? AppTheme.primary : AppTheme.outlineVariant),
+                          color: provider.verifiedOnly ? AppTheme.primary : AppTheme.outlineVariant),
                     ),
                     child: Text('Verified only',
                         style: TextStyle(
-                          color: _verifiedOnly ? Colors.white : AppTheme.onSurface,
+                          color: provider.verifiedOnly ? Colors.white : AppTheme.onSurface,
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         )),
@@ -207,8 +208,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
           children: [
             Text('Sort by', style: AppTheme.headlineSm),
             const SizedBox(height: 16),
-            _sortTile('Price Low→High'),
-            _sortTile('Price High→Low'),
+            for (final label in _sortOptions.keys) _sortTile(label),
             const SizedBox(height: 8),
           ],
         ),
@@ -216,11 +216,17 @@ class _BrowseScreenState extends State<BrowseScreen> {
     );
   }
 
+  String _sortLabel(ListingSort sort) => _sortOptions.entries
+      .firstWhere((e) => e.value == sort,
+          orElse: () => _sortOptions.entries.first)
+      .key;
+
   Widget _sortTile(String label) {
-    final selected = _sortOption == label;
+    final provider = context.watch<ListingProvider>();
+    final selected = provider.sort == _sortOptions[label];
     return ListTile(
       onTap: () {
-        setState(() => _sortOption = label);
+        provider.setSort(_sortOptions[label]!);
         Navigator.pop(context);
       },
       leading: Icon(
