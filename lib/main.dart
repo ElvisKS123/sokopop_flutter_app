@@ -1,19 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
-import 'package:sokopop_flutter_app/features/auth/presentation/providers/auth_provider.dart';
-import 'package:sokopop_flutter_app/features/listings/presentation/providers/listing_provider.dart';
-import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
-import 'package:sokopop_flutter_app/features/auth/presentation/screens/splash_screen.dart';
-import 'package:sokopop_flutter_app/features/auth/presentation/screens/sign_in_screen.dart';
-import 'package:sokopop_flutter_app/features/auth/presentation/screens/create_account_screen.dart';
-import 'package:sokopop_flutter_app/features/auth/presentation/screens/forgot_password_screen.dart';
-import 'package:sokopop_flutter_app/features/listings/presentation/screens/home_screen.dart';
-import 'package:sokopop_flutter_app/features/profile/presentation/screens/notifications_screen.dart';
+import 'package:sokopop_flutter_app/app.dart';
+import 'package:sokopop_flutter_app/core/di/service_locator.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,67 +24,24 @@ Future<void> main() async {
     await Firebase.initializeApp();
   }
 
+  // Wire up data sources, repositories and use cases before the first frame.
+  await initDependencies();
+
+  // NOTE: the portrait-only lock that used to live here has been removed.
+  // The rubric asks for landscape responsiveness and a rotation demo, and
+  // SystemChrome.setPreferredOrientations made both impossible. Screens now
+  // need checking for overflow in landscape.
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
   ));
+
   runApp(const SokopopApp());
-}
-
-class SokopopApp extends StatelessWidget {
-  const SokopopApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => ListingProvider()),
-      ],
-      child: MaterialApp(
-        title: 'Sokopop',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.theme,
-        home: const AuthGate(),
-        routes: {
-          '/sign_in': (_) => const SignInScreen(),
-          '/create_account': (_) => const CreateAccountScreen(),
-          '/forgot_password': (_) => const ForgotPasswordScreen(),
-          '/home': (_) => const HomeScreen(),
-          '/notifications': (_) => const NotificationsScreen(),
-        },
-      ),
-    );
-  }
-}
-
-/// AuthGate keeps the user signed in after the app restarts (auth persistence).
-/// - Logged in  -> straight to HomeScreen
-/// - Logged out -> SplashScreen (Get Started / Sign in flow)
-class AuthGate extends StatelessWidget {
-  const AuthGate({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: context.read<AuthProvider>().authStateChanges,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(color: AppTheme.primary),
-            ),
-          );
-        }
-        if (snapshot.hasData) {
-          return const HomeScreen();
-        }
-        return const SplashScreen();
-      },
-    );
-  }
 }

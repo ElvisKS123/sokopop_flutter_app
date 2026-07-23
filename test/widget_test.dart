@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:sokopop_flutter_app/main.dart';
+import 'package:sokopop_flutter_app/app.dart';
 import 'package:sokopop_flutter_app/features/auth/presentation/screens/splash_screen.dart';
 
 // Root widget name in this project is SokopopApp (not MyApp).
