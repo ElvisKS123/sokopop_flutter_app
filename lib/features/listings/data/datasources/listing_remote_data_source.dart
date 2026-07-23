@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:sokopop_flutter_app/models/data.dart';
+import 'package:sokopop_flutter_app/features/listings/data/models/listing_model.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/entities/listing.dart';
 
 class ListingService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -8,7 +9,9 @@ class ListingService {
   // CREATE — add a new listing to Firestore
   Future<void> createListing(Listing listing) async {
     try {
-      await _db.collection(_collection).add(listing.toMap());
+      await _db
+          .collection(_collection)
+          .add(ListingModel.fromEntity(listing).toMap());
     } catch (e) {
       throw Exception('Failed to create listing: $e');
     }
@@ -22,7 +25,7 @@ class ListingService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => Listing.fromMap(doc.id, doc.data()))
+            .map((doc) => ListingModel.fromMap(doc.id, doc.data()))
             .toList());
   }
 
@@ -34,7 +37,7 @@ class ListingService {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => Listing.fromMap(doc.id, doc.data()))
+            .map((doc) => ListingModel.fromMap(doc.id, doc.data()))
             .toList());
   }
 

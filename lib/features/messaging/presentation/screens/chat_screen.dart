@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
-import 'package:sokopop_flutter_app/models/data.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/entities/listing.dart';
+import 'package:sokopop_flutter_app/shared/mock/mock_data.dart';
 import 'package:sokopop_flutter_app/core/utils/formatters.dart';
 
 class ChatScreen extends StatefulWidget {

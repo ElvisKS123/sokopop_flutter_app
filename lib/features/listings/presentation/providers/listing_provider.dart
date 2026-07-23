@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sokopop_flutter_app/models/data.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/entities/listing.dart';
 import 'package:sokopop_flutter_app/features/listings/data/datasources/listing_remote_data_source.dart';
 
 class ListingProvider extends ChangeNotifier {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
-import 'package:sokopop_flutter_app/models/data.dart';
+import 'package:sokopop_flutter_app/shared/mock/mock_data.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
