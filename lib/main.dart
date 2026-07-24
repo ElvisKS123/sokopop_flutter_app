@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import 'providers/auth_provider.dart';
 import 'providers/listing_provider.dart';
+import 'presentation/auth_state.dart';
 import 'theme/app_theme.dart';
 import 'screens/splash_screen.dart';
 import 'screens/sign_in_screen.dart';
@@ -52,6 +53,7 @@ class SokopopApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AuthState()),
         ChangeNotifierProvider(create: (_) => ListingProvider()),
       ],
       child: MaterialApp(

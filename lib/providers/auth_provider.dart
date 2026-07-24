@@ -6,37 +6,82 @@ import '../data/repositories/auth_repository.dart';
 /// Presentation-layer state management (Provider / ChangeNotifier).
 /// Screens listen to this class instead of calling Firebase directly.
 class AuthProvider extends ChangeNotifier {
-  final AuthRepository _repo = AuthRepository();
+  AuthRepository? _repo;
 
   bool isLoading = false;
   String? errorMessage;
 
-  User? get currentUser => _repo.currentUser;
-  Stream<User?> get authStateChanges => _repo.authStateChanges;
+  AuthRepository? get _repository => _repo ??= _createRepository();
 
-  Future<String?> getLastEmail() => _repo.getLastEmail();
+  bool get isFirebaseReady => _repository != null;
+
+  User? get currentUser => _repository?.currentUser;
+  Stream<User?> get authStateChanges =>
+      _repository?.authStateChanges ?? const Stream<User?>.empty();
+
+  Future<String?> getLastEmail() async {
+    final repo = _repository;
+    if (repo == null) {
+      _setUnavailableError();
+      return null;
+    }
+    return repo.getLastEmail();
+  }
 
   /// Returns true on success, false on failure (screen shows errorMessage).
   Future<bool> signUp(String fullName, String email, String password) async {
-    return _run(() => _repo.signUpWithEmail(
+    final repo = _repository;
+    if (repo == null) {
+      _setUnavailableError();
+      return false;
+    }
+    return _run(() => repo.signUpWithEmail(
         fullName: fullName, email: email, password: password));
   }
 
   Future<bool> signIn(String email, String password) async {
-    return _run(() => _repo.signInWithEmail(email: email, password: password));
+    final repo = _repository;
+    if (repo == null) {
+      _setUnavailableError();
+      return false;
+    }
+    return _run(() => repo.signInWithEmail(email: email, password: password));
   }
 
   Future<bool> signInWithGoogle() async {
-    return _run(() => _repo.signInWithGoogle());
+    final repo = _repository;
+    if (repo == null) {
+      _setUnavailableError();
+      return false;
+    }
+    return _run(() => repo.signInWithGoogle());
   }
 
   Future<bool> sendPasswordReset(String email) async {
-    return _run(() => _repo.sendPasswordReset(email));
+    final repo = _repository;
+    if (repo == null) {
+      _setUnavailableError();
+      return false;
+    }
+    return _run(() => repo.sendPasswordReset(email));
   }
 
   Future<void> signOut() async {
-    await _repo.signOut();
+    final repo = _repository;
+    if (repo == null) {
+      _setUnavailableError();
+      return;
+    }
+    await repo.signOut();
     notifyListeners();
+  }
+
+  AuthRepository? _createRepository() {
+    try {
+      return AuthRepository();
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Shared wrapper: sets loading, catches Firebase errors, maps them
@@ -61,6 +106,12 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  void _setUnavailableError() {
+    errorMessage = 'Firebase is not available yet. Please run the app with Firebase initialized.';
+    isLoading = false;
+    notifyListeners();
   }
 
   String _friendlyError(String code) {

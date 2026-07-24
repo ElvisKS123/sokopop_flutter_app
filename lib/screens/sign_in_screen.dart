@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../presentation/auth_state.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/shared_widgets.dart';
@@ -25,7 +26,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _restoreLastEmail() async {
-    final last = await context.read<AuthProvider>().getLastEmail();
+    final last = await context.read<AuthState>().getLastEmail();
     if (last != null && mounted) {
       setState(() {
         _emailCtrl.text = last;
@@ -61,7 +62,7 @@ class _SignInScreenState extends State<SignInScreen> {
       return;
     }
 
-    final auth = context.read<AuthProvider>();
+    final auth = context.read<AuthState>();
     final ok = await auth.signIn(email, pass);
     if (!mounted) return;
     if (ok) {
@@ -72,7 +73,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    final auth = context.read<AuthProvider>();
+    final auth = context.read<AuthState>();
     final ok = await auth.signInWithGoogle();
     if (!mounted) return;
     if (ok) {
@@ -84,7 +85,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = context.watch<AuthProvider>().isLoading;
+    final isLoading = context.watch<AuthState>().isLoading;
 
     return Scaffold(
       backgroundColor: AppTheme.background,
@@ -139,7 +140,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: AppTheme.secondaryContainer.withOpacity(0.4),
+                    color: AppTheme.secondaryContainer.withValues(alpha: 0.4),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Row(
