@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
+import 'package:sokopop_flutter_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:sokopop_flutter_app/features/listings/domain/entities/listing.dart';
-import 'package:sokopop_flutter_app/shared/mock/mock_data.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/providers/listing_provider.dart';
 import 'package:sokopop_flutter_app/shared/widgets/shared_widgets.dart';
 import 'package:sokopop_flutter_app/core/utils/formatters.dart';
 import 'package:sokopop_flutter_app/features/listings/presentation/screens/listing_details_screen.dart';
@@ -24,21 +26,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<String> _categories = ['All', 'Textbooks', 'Clothing', 'Electronics', 'Other'];
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ListingProvider>().fetchListings();
+    });
+  }
+
   List<Listing> get _filteredFeatured {
-    if (_selectedCategory == 'All') return sampleListings.take(4).toList();
-    return sampleListings
-        .where((l) => l.category == _selectedCategory)
-        .take(4)
-        .toList();
+    final listings = context.read<ListingProvider>().visibleListings;
+    if (_selectedCategory == 'All') return listings.take(4).toList();
+    return listings.where((l) => l.category == _selectedCategory).take(4).toList();
   }
 
   List<Listing> get _recentListings {
-    if (_selectedCategory == 'All') return sampleListings.skip(4).take(4).toList();
-    return sampleListings
-        .where((l) => l.category == _selectedCategory)
-        .skip(2)
-        .take(4)
-        .toList();
+    final listings = context.read<ListingProvider>().visibleListings;
+    if (_selectedCategory == 'All') return listings.skip(4).take(4).toList();
+    return listings.where((l) => l.category == _selectedCategory).skip(2).take(4).toList();
   }
 
   @override
@@ -50,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           _buildHome(),
           const BrowseScreen(),
-          const SizedBox(), // Sell placeholder – modal
+          const SizedBox(),
           const MessagesScreen(),
           const ProfileScreen(),
         ],
@@ -84,6 +89,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHeader() {
+    final user = context.watch<AuthProvider>().currentUser;
+    final initial = (user?.displayName ?? user?.email ?? 'A').substring(0, 1).toUpperCase();
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
       child: Row(
@@ -111,8 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
           CircleAvatar(
             backgroundColor: AppTheme.primary,
             radius: 18,
-            child: const Text('P',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+            child: Text(initial,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -272,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             _navItem(Icons.home_outlined, Icons.home, 'Home', 0),
             _navItem(Icons.search_outlined, Icons.search, 'Browse', 1),
-            const SizedBox(width: 48), // FAB gap
+            const SizedBox(width: 48),
             _navItem(Icons.chat_bubble_outline, Icons.chat_bubble, 'Chats', 3),
             _navItem(Icons.person_outline, Icons.person, 'Profile', 4),
           ],
@@ -321,7 +329,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// ---- Listing Card ----
 class _ListingCard extends StatelessWidget {
   final Listing listing;
   final bool showBadge;
@@ -365,10 +372,10 @@ class _ListingCard extends StatelessWidget {
                     ),
                   ),
                   if (showBadge && listing.isVerified)
-                    Positioned(
+                    const Positioned(
                       top: 8,
                       left: 8,
-                      child: const VerifiedBadge(label: 'ALU Verified'),
+                      child: VerifiedBadge(label: 'ALU Verified'),
                     ),
                 ],
               ),
@@ -383,7 +390,7 @@ class _ListingCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 2),
-Text('RWF ${formatPriceWithCommas(listing.price)}',
+                  Text('RWF ${formatPriceWithCommas(listing.price)}',
                       style: AppTheme.priceDisplay.copyWith(fontSize: 14)),
                 ],
               ),
@@ -435,7 +442,7 @@ class _RecentCard extends StatelessWidget {
                       style: AppTheme.bodyMd.copyWith(fontWeight: FontWeight.w600),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis),
-Text('RWF ${formatPriceWithCommas(listing.price)}',
+                  Text('RWF ${formatPriceWithCommas(listing.price)}',
                       style: AppTheme.priceDisplay.copyWith(fontSize: 13)),
                 ],
               ),
@@ -459,6 +466,3 @@ Text('RWF ${formatPriceWithCommas(listing.price)}',
     }
   }
 }
-
-// Price formatting moved to lib/utils/formatters.dart
-

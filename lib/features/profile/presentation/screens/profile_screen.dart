@@ -1,12 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
+import 'package:sokopop_flutter_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:sokopop_flutter_app/features/listings/domain/entities/listing.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/providers/listing_provider.dart';
+import 'package:sokopop_flutter_app/features/listings/presentation/screens/listing_details_screen.dart';
 import 'package:sokopop_flutter_app/features/profile/presentation/screens/notifications_screen.dart';
+import 'package:sokopop_flutter_app/features/auth/presentation/screens/splash_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  bool _showMyListings = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ListingProvider>().fetchListings();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final user = context.watch<AuthProvider>().currentUser;
+    final displayName = user?.displayName ?? user?.email ?? 'ALU Student';
+    final initials = displayName.trim().split(' ').map((e) => e[0]).take(2).join().toUpperCase();
+    final listingProvider = context.watch<ListingProvider>();
+    final myListings = listingProvider.myListings;
+
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
@@ -21,14 +48,20 @@ class ProfileScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Icon(Icons.arrow_back, color: Colors.white),
-                      Text('Campus Market',
-                          style: const TextStyle(
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.arrow_back, color: Colors.white),
+                      ),
+                      const Text('Campus Market',
+                          style: TextStyle(
                               color: Colors.white, fontWeight: FontWeight.w600)),
                       IconButton(
-                        icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-                        onPressed: () => Navigator.push(context,
-                            MaterialPageRoute(builder: (_) => const NotificationsScreen())),
+                        icon: const Icon(Icons.notifications_outlined,
+                            color: Colors.white),
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const NotificationsScreen())),
                       ),
                     ],
                   ),
@@ -36,34 +69,40 @@ class ProfileScreen extends StatelessWidget {
                   CircleAvatar(
                     radius: 38,
                     backgroundColor: Colors.white,
-                    child: Text('PM',
+                    child: Text(initials,
                         style: TextStyle(
                             color: AppTheme.primary,
                             fontSize: 22,
                             fontWeight: FontWeight.w800)),
                   ),
                   const SizedBox(height: 10),
-                  const Text('Pierre Michael Angelo',
-                      style: TextStyle(
-                          color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700)),
+                  Text(displayName,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700)),
                   const SizedBox(height: 4),
-                  const Text('2nd Year · Computer Science',
-                      style: TextStyle(color: Colors.white70, fontSize: 13)),
+                  Text(user?.email ?? '',
+                      style: const TextStyle(
+                          color: Colors.white70, fontSize: 13)),
                   const SizedBox(height: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.white54),
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: const Text('Verified ALU student',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
             ),
             // Stats
-Container(
+            Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 0),
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
@@ -78,13 +117,14 @@ Container(
               ),
               child: Row(
                 children: [
-                  _stat('8', 'Sold'),
+                  _stat(
+                      '${myListings.where((l) => l.isSold).length}', 'Sold'),
                   _divider(),
-                  _stat('12', 'Bought'),
+                  _stat('0', 'Bought'),
                   _divider(),
-                  _stat('4.9', 'Rating'),
+                  _stat('0.0', 'Rating'),
                   _divider(),
-                  _stat('14', 'Reviews'),
+                  _stat('0', 'Reviews'),
                 ],
               ),
             ),
@@ -100,8 +140,24 @@ Container(
                     'Manage your active listings',
                     AppTheme.secondaryContainer.withOpacity(0.5),
                     AppTheme.primaryContainer,
-                    onTap: () {},
+                    onTap: () =>
+                        setState(() => _showMyListings = !_showMyListings),
                   ),
+                  if (_showMyListings) ...[
+                    const SizedBox(height: 8),
+                    if (listingProvider.isLoading)
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: CircularProgressIndicator(),
+                      )
+                    else if (myListings.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('No listings yet'),
+                      )
+                    else
+                      ...myListings.map((listing) => _listingTile(listing)),
+                  ],
                   const SizedBox(height: 10),
                   _menuItem(
                     Icons.bookmark_outline,
@@ -132,8 +188,15 @@ Container(
                   const SizedBox(height: 10),
                   // Sign out
                   GestureDetector(
-                    onTap: () => Navigator.pushNamedAndRemoveUntil(
-                        context, '/', (route) => false),
+                    onTap: () async {
+                      await context.read<AuthProvider>().signOut();
+                      if (mounted) {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (_) => const SplashScreen()),
+                          (route) => false,
+                        );
+                      }
+                    },
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -150,7 +213,8 @@ Container(
                               color: AppTheme.errorContainer.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Icon(Icons.logout, color: AppTheme.error, size: 20),
+                            child: Icon(Icons.logout,
+                                color: AppTheme.error, size: 20),
                           ),
                           const SizedBox(width: 12),
                           Text('Sign out',
@@ -163,7 +227,6 @@ Container(
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Security note
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
@@ -188,7 +251,9 @@ Container(
                               Text(
                                 'Your account is verified with your official university email. This ensures a safe marketplace for everyone.',
                                 style: TextStyle(
-                                    color: AppTheme.onSurfaceVariant, fontSize: 13, height: 1.4),
+                                    color: AppTheme.onSurfaceVariant,
+                                    fontSize: 13,
+                                    height: 1.4),
                               ),
                             ],
                           ),
@@ -206,16 +271,77 @@ Container(
     );
   }
 
+  Widget _listingTile(Listing listing) {
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ListingDetailsScreen(listing: listing),
+        ),
+      ),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                listing.imageUrl,
+                width: 56,
+                height: 56,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 56,
+                  height: 56,
+                  color: AppTheme.surfaceContainerLow,
+                  child: const Icon(Icons.image_outlined,
+                      color: AppTheme.outline),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(listing.title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 14),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                  const SizedBox(height: 2),
+                  Text('RWF ${listing.price} · ${listing.status}',
+                      style: TextStyle(
+                          color: AppTheme.onSurfaceVariant, fontSize: 12)),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppTheme.outline),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _stat(String value, String label) {
     return Expanded(
       child: Column(
         children: [
           Text(value,
               style: TextStyle(
-                  color: AppTheme.primary, fontSize: 20, fontWeight: FontWeight.w800)),
+                  color: AppTheme.primary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800)),
           const SizedBox(height: 2),
           Text(label,
-              style: TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 12)),
+              style:
+                  TextStyle(color: AppTheme.onSurfaceVariant, fontSize: 12)),
         ],
       ),
     );
@@ -223,7 +349,9 @@ Container(
 
   Widget _divider() {
     return Container(
-        width: 1, height: 30, color: AppTheme.outlineVariant.withOpacity(0.5));
+        width: 1,
+        height: 30,
+        color: AppTheme.outlineVariant.withOpacity(0.5));
   }
 
   Widget _menuItem(IconData icon, String title, String subtitle, Color iconBg,
@@ -236,7 +364,8 @@ Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+          border:
+              Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
         ),
         child: Row(
           children: [
