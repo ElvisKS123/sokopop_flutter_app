@@ -99,7 +99,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: _categories.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (_, i) {
                   final label = _categories.keys.elementAt(i);
                   final value = _categories.values.elementAt(i);
