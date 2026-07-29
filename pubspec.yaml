@@ -42,9 +42,16 @@ dependencies:
   provider: ^6.1.2
   shared_preferences: ^2.3.3
 
+  # Dependency injection: lets providers receive repositories instead of
+  # constructing them, which is what makes the layers testable.
+  get_it: ^8.0.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # Fakes for repositories in unit tests.
+  mocktail: ^1.0.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

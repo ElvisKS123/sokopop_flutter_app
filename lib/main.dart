@@ -1,10 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
+<<<<<<< HEAD
 import 'providers/auth_provider.dart';
 import 'providers/listing_provider.dart';
 import 'presentation/auth_state.dart';
@@ -15,6 +14,10 @@ import 'screens/create_account_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/notifications_screen.dart';
+=======
+import 'package:sokopop_flutter_app/app.dart';
+import 'package:sokopop_flutter_app/core/di/service_locator.dart';
+>>>>>>> 8d4aad31a0f30ede0fe38a292fa2147cdf907a86
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,16 +37,28 @@ Future<void> main() async {
     await Firebase.initializeApp();
   }
 
+  // Wire up data sources, repositories and use cases before the first frame.
+  await initDependencies();
+
+  // NOTE: the portrait-only lock that used to live here has been removed.
+  // The rubric asks for landscape responsiveness and a rotation demo, and
+  // SystemChrome.setPreferredOrientations made both impossible. Screens now
+  // need checking for overflow in landscape.
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
   ));
+
   runApp(const SokopopApp());
 }
+<<<<<<< HEAD
 
 class SokopopApp extends StatelessWidget {
   const SokopopApp({super.key});
@@ -99,3 +114,5 @@ class AuthGate extends StatelessWidget {
     );
   }
 }
+=======
+>>>>>>> 8d4aad31a0f30ede0fe38a292fa2147cdf907a86
