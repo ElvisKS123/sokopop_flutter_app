@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-<<<<<<< HEAD:lib/screens/sign_in_screen.dart
-import '../presentation/auth_state.dart';
-import '../providers/auth_provider.dart';
-import '../theme/app_theme.dart';
-import '../widgets/shared_widgets.dart';
-=======
 import 'package:sokopop_flutter_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
 import 'package:sokopop_flutter_app/shared/widgets/shared_widgets.dart';
->>>>>>> 8d4aad31a0f30ede0fe38a292fa2147cdf907a86:lib/features/auth/presentation/screens/sign_in_screen.dart
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -32,7 +25,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _restoreLastEmail() async {
-    final last = await context.read<AuthState>().getLastEmail();
+    final last = await context.read<AuthProvider>().getLastEmail();
     if (last != null && mounted) {
       setState(() {
         _emailCtrl.text = last;
@@ -68,7 +61,7 @@ class _SignInScreenState extends State<SignInScreen> {
       return;
     }
 
-    final auth = context.read<AuthState>();
+    final auth = context.read<AuthProvider>();
     final ok = await auth.signIn(email, pass);
     if (!mounted) return;
     if (ok) {
@@ -79,7 +72,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    final auth = context.read<AuthState>();
+    final auth = context.read<AuthProvider>();
     final ok = await auth.signInWithGoogle();
     if (!mounted) return;
     if (ok) {
@@ -91,7 +84,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = context.watch<AuthState>().isLoading;
+    final isLoading = context.watch<AuthProvider>().isLoading;
 
     return Scaffold(
       backgroundColor: AppTheme.background,

@@ -18,16 +18,9 @@ class BrowseScreen extends StatefulWidget {
 }
 
 class _BrowseScreenState extends State<BrowseScreen> {
-<<<<<<< HEAD:lib/screens/browse_screen.dart
-  String _selectedCategory = 'All';
-  String _sortOption = 'Price Low→High';
-  bool _verifiedOnly = false;
-  final bool _isSearching = false;
-=======
   // Category, sort and verified filters used to be setState fields here.
   // They decide WHICH listings a user sees, which is business logic, so they
   // now live in ListingProvider and the filtering itself is a use case.
->>>>>>> 8d4aad31a0f30ede0fe38a292fa2147cdf907a86:lib/features/listings/presentation/screens/browse_screen.dart
   final _searchCtrl = TextEditingController(text: 'Textbooks');
 
   /// Chip label -> the category value stored on the listing document.
@@ -106,14 +99,6 @@ class _BrowseScreenState extends State<BrowseScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: _categories.length,
-<<<<<<< HEAD:lib/screens/browse_screen.dart
-                separatorBuilder: (_, _) => const SizedBox(width: 8),
-                itemBuilder: (_, i) => CategoryChip(
-                  label: _categories[i],
-                  active: _selectedCategory == _categories[i],
-                  onTap: () => setState(() => _selectedCategory = _categories[i]),
-                ),
-=======
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (_, i) {
                   final label = _categories.keys.elementAt(i);
@@ -124,7 +109,6 @@ class _BrowseScreenState extends State<BrowseScreen> {
                     onTap: () => provider.setCategory(value),
                   );
                 },
->>>>>>> 8d4aad31a0f30ede0fe38a292fa2147cdf907a86:lib/features/listings/presentation/screens/browse_screen.dart
               ),
             ),
           ),

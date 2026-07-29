@@ -1,26 +1,3 @@
-<<<<<<< HEAD
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-
-import 'package:sokopop_flutter_app/main.dart';
-import 'package:sokopop_flutter_app/screens/splash_screen.dart';
-
-void main() {
-  testWidgets('Sokopop app shows the splash screen on launch', (tester) async {
-    await tester.pumpWidget(const SokopopApp());
-    await tester.pump();
-
-    expect(find.byType(SplashScreen), findsOneWidget);
-    expect(find.text('SOKOPOP'), findsOneWidget);
-  });
-
-  testWidgets('Splash screen exposes the main onboarding actions', (tester) async {
-    await tester.pumpWidget(const MaterialApp(home: SplashScreen()));
-
-    expect(find.text('Get started'), findsOneWidget);
-    expect(find.text('I already have an account'), findsOneWidget);
-  });
-=======
 // Smoke test for the app shell.
 //
 // `SokopopApp` resolves its providers from the service locator, which is
@@ -46,5 +23,4 @@ void main() {
     },
     skip: true,
   );
->>>>>>> 8d4aad31a0f30ede0fe38a292fa2147cdf907a86
 }
