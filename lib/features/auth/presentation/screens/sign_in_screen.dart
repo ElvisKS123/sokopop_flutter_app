@@ -139,7 +139,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
-                    color: AppTheme.secondaryContainer.withValues(alpha: 0.4),
+                    color: AppTheme.secondaryContainer.withOpacity(0.4),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Row(
