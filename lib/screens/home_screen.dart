@@ -153,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: _categories.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          separatorBuilder: (_, _) => const SizedBox(width: 8),
           itemBuilder: (_, i) => CategoryChip(
             label: _categories[i],
             active: _selectedCategory == _categories[i],
@@ -288,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
         decoration: isActive
             ? BoxDecoration(
-                color: AppTheme.primaryContainer.withOpacity(0.12),
+                color: AppTheme.primaryContainer.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(999),
               )
             : null,
@@ -336,10 +336,10 @@ class _ListingCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -357,7 +357,7 @@ class _ListingCard extends StatelessWidget {
                     height: 120,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       height: 120,
                       color: AppTheme.surfaceContainerLow,
                       child: Icon(Icons.image_outlined, color: AppTheme.outline, size: 32),
@@ -408,7 +408,7 @@ class _RecentCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -418,7 +418,7 @@ class _RecentCard extends StatelessWidget {
               child: Container(
                 height: 80,
                 width: double.infinity,
-                color: AppTheme.secondaryContainer.withOpacity(0.3),
+                color: AppTheme.secondaryContainer.withValues(alpha: 0.3),
                 child: Center(
                   child: Icon(_categoryIcon(listing.category),
                       color: AppTheme.primaryContainer, size: 36),

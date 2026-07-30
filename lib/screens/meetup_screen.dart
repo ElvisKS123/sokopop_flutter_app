@@ -72,7 +72,7 @@ class _MeetupScreenState extends State<MeetupScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+                border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
               ),
               child: Column(
                 children: [
@@ -172,7 +172,7 @@ _detailRow('Price agreed', 'RWF ${formatPriceWithCommas(3200)}', isPrice: true),
                           borderRadius: BorderRadius.circular(999),
                           boxShadow: [
                             BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2)),
                           ],
@@ -260,8 +260,8 @@ _detailRow('Price agreed', 'RWF ${formatPriceWithCommas(3200)}', isPrice: true),
   }
 
   void _showReviewSheet(BuildContext context) {
-    int _stars = 5;
-    final _reviewCtrl = TextEditingController();
+    int stars = 5;
+    final reviewCtrl = TextEditingController();
 
     showModalBottomSheet(
       context: context,
@@ -289,9 +289,9 @@ _detailRow('Price agreed', 'RWF ${formatPriceWithCommas(3200)}', isPrice: true),
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: List.generate(5, (i) {
                   return GestureDetector(
-                    onTap: () => setModalState(() => _stars = i + 1),
+                    onTap: () => setModalState(() => stars = i + 1),
                     child: Icon(
-                      i < _stars ? Icons.star : Icons.star_outline,
+                      i < stars ? Icons.star : Icons.star_outline,
                       color: const Color(0xFFF59E0B),
                       size: 36,
                     ),
@@ -300,7 +300,7 @@ _detailRow('Price agreed', 'RWF ${formatPriceWithCommas(3200)}', isPrice: true),
               ),
               const SizedBox(height: 16),
               TextField(
-                controller: _reviewCtrl,
+                controller: reviewCtrl,
                 maxLines: 3,
                 decoration: InputDecoration(
                   hintText: 'Share details about your experience...',

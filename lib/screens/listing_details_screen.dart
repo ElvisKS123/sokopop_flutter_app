@@ -19,7 +19,7 @@ class ListingDetailsScreen extends StatefulWidget {
 }
 
 class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
-  int _currentImage = 0;
+  final int _currentImage = 0;
 
   bool get _isOwner =>
       FirebaseAuth.instance.currentUser?.uid == widget.listing.sellerId;
@@ -149,7 +149,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                   child: Image.network(
                     l.imageUrl,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => const Center(
+                    errorBuilder: (_, _, _) => const Center(
                       child: Icon(Icons.image_outlined, size: 60, color: AppTheme.outline),
                     ),
                   ),
@@ -217,7 +217,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                     runSpacing: 8,
                     children: [
                       _tag(l.condition, Icons.check_circle_outline, AppTheme.primary,
-                          AppTheme.secondaryContainer.withOpacity(0.4)),
+                          AppTheme.secondaryContainer.withValues(alpha: 0.4)),
                       if (l.isNegotiable)
                         _tag('Negotiable', null, AppTheme.onSurface,
                             AppTheme.surfaceContainerHigh),
@@ -240,7 +240,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: AppTheme.outlineVariant.withOpacity(0.5)),
+                            color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
                       ),
                       child: Row(
                         children: [
@@ -288,7 +288,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: AppTheme.outlineVariant.withOpacity(0.5)),
+                          color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
                     ),
                     child: Row(
                       children: [
@@ -397,7 +397,7 @@ class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.4)),
+        border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

@@ -56,7 +56,7 @@ class MessagesScreen extends StatelessWidget {
                 Column(
                   children: [
                     Icon(Icons.chat_bubble_outline,
-                        size: 40, color: AppTheme.outline.withOpacity(0.4)),
+                        size: 40, color: AppTheme.outline.withValues(alpha: 0.4)),
                     const SizedBox(height: 8),
                     Text('No more messages',
                         style: TextStyle(color: AppTheme.outline, fontSize: 13)),
@@ -95,7 +95,7 @@ class _MessageTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -105,7 +105,7 @@ class _MessageTile extends StatelessWidget {
                   radius: 26,
                   backgroundImage: NetworkImage(msg.avatarUrl),
                   backgroundColor: AppTheme.surfaceContainerHigh,
-                  onBackgroundImageError: (_, __) {},
+                  onBackgroundImageError: (_, _) {},
                   child: Text(msg.senderName[0],
                       style: const TextStyle(
                           fontWeight: FontWeight.w700, color: AppTheme.primary)),

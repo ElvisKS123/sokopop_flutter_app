@@ -20,7 +20,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
   String _selectedCategory = 'All';
   String _sortOption = 'Price Low→High';
   bool _verifiedOnly = false;
-  bool _isSearching = false;
+  final bool _isSearching = false;
   final _searchCtrl = TextEditingController(text: 'Textbooks');
 
   final List<String> _categories = ['All', 'Books', 'Clothing', 'Electronics'];
@@ -102,7 +102,7 @@ class _BrowseScreenState extends State<BrowseScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: _categories.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (_, i) => CategoryChip(
                   label: _categories[i],
                   active: _selectedCategory == _categories[i],
@@ -253,9 +253,9 @@ class _BrowseCardState extends State<_BrowseCard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 6, offset: const Offset(0, 2)),
+            BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 6, offset: const Offset(0, 2)),
           ],
         ),
         child: Column(
@@ -270,7 +270,7 @@ class _BrowseCardState extends State<_BrowseCard> {
                     height: 140,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    errorBuilder: (_, _, _) => Container(
                       height: 140,
                       color: AppTheme.surfaceContainerLow,
                       child: const Icon(Icons.image_outlined, color: AppTheme.outline),

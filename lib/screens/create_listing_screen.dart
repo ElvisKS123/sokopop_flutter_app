@@ -294,9 +294,9 @@ class _CreateListingSheetState extends State<CreateListingSheet> {
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: AppTheme.secondaryContainer.withOpacity(0.2),
+                          color: AppTheme.secondaryContainer.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppTheme.primary.withOpacity(0.2)),
+                          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,

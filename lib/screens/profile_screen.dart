@@ -71,7 +71,7 @@ Container(
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 12,
                       offset: const Offset(0, 4)),
                 ],
@@ -98,7 +98,7 @@ Container(
                     Icons.list_alt_outlined,
                     'My listings',
                     'Manage your active listings',
-                    AppTheme.secondaryContainer.withOpacity(0.5),
+                    AppTheme.secondaryContainer.withValues(alpha: 0.5),
                     AppTheme.primaryContainer,
                     onTap: () {},
                   ),
@@ -107,7 +107,7 @@ Container(
                     Icons.bookmark_outline,
                     'Saved items',
                     'Items you\'ve bookmarked',
-                    AppTheme.secondaryContainer.withOpacity(0.5),
+                    AppTheme.secondaryContainer.withValues(alpha: 0.5),
                     AppTheme.primaryContainer,
                     onTap: () {},
                   ),
@@ -137,17 +137,17 @@ Container(
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: AppTheme.errorContainer.withOpacity(0.3),
+                        color: AppTheme.errorContainer.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: AppTheme.error.withOpacity(0.2)),
+                            color: AppTheme.error.withValues(alpha: 0.2)),
                       ),
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: AppTheme.errorContainer.withOpacity(0.5),
+                              color: AppTheme.errorContainer.withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(Icons.logout, color: AppTheme.error, size: 20),
@@ -223,7 +223,7 @@ Container(
 
   Widget _divider() {
     return Container(
-        width: 1, height: 30, color: AppTheme.outlineVariant.withOpacity(0.5));
+        width: 1, height: 30, color: AppTheme.outlineVariant.withValues(alpha: 0.5));
   }
 
   Widget _menuItem(IconData icon, String title, String subtitle, Color iconBg,
@@ -236,7 +236,7 @@ Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [

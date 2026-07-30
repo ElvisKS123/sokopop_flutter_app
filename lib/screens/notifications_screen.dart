@@ -69,8 +69,8 @@ class _NotifTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: notif.isUnread
-              ? AppTheme.primary.withOpacity(0.2)
-              : AppTheme.outlineVariant.withOpacity(0.4),
+              ? AppTheme.primary.withValues(alpha: 0.2)
+              : AppTheme.outlineVariant.withValues(alpha: 0.4),
           width: notif.isUnread ? 1.5 : 1,
         ),
       ),
@@ -166,7 +166,7 @@ class _NotifTile extends StatelessWidget {
         break;
       case 'listing':
         icon = Icons.devices_outlined;
-        bg = AppTheme.secondaryContainer.withOpacity(0.4);
+        bg = AppTheme.secondaryContainer.withValues(alpha: 0.4);
         iconColor = AppTheme.primary;
         break;
       case 'review':
@@ -203,7 +203,7 @@ class _NotifTile extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: AppTheme.primary.withOpacity(0.12),
+          color: AppTheme.primary.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(999),
         ),
         child: const Icon(Icons.chat_bubble_outline, color: AppTheme.primary, size: 12),
