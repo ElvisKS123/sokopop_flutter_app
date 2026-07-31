@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
 import 'package:sokopop_flutter_app/features/listings/domain/entities/listing.dart';
 import 'package:sokopop_flutter_app/shared/mock/mock_data.dart';
-import 'package:sokopop_flutter_app/shared/widgets/shared_widgets.dart';
 import 'package:sokopop_flutter_app/core/utils/formatters.dart';
 import 'package:sokopop_flutter_app/features/listings/presentation/providers/listing_provider.dart';
 import 'package:sokopop_flutter_app/features/messaging/presentation/screens/chat_screen.dart';
@@ -19,16 +18,9 @@ class ListingDetailsScreen extends StatefulWidget {
 }
 
 class _ListingDetailsScreenState extends State<ListingDetailsScreen> {
-<<<<<<< HEAD:lib/screens/listing_details_screen.dart
-  final int _currentImage = 0;
-
-  bool get _isOwner =>
-      FirebaseAuth.instance.currentUser?.uid == widget.listing.sellerId;
-=======
   /// Ownership is a domain rule (`Listing.isOwnedBy`) reached through the
   /// provider, not a Firebase lookup performed by the widget.
   bool get _isOwner => context.read<ListingProvider>().isOwner(widget.listing);
->>>>>>> 3afd0fb0b46fa5d6aac4ab866b4cc43aeeecc2df:lib/features/listings/presentation/screens/listing_details_screen.dart
 
   Future<void> _markAsSold() async {
     final listings = context.read<ListingProvider>();
