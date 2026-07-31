@@ -12,7 +12,20 @@
           "package_name": "com.example.sokopop_flutter_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1099152154419-0f6g47ck7dsk8c2jqger8ckjkgfbv3ab.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sokopop_flutter_app",
+            "certificate_hash": "7d60ef930aee86f07e14d4eab80f3cba36613d7d"
+          }
+        },
+        {
+          "client_id": "1099152154419-6u5cib30joru325ndc1lnv8eo67jocql.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCX4jDG4X-1sgbnVFyB3RsiynWH1UFApUM"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1099152154419-6u5cib30joru325ndc1lnv8eo67jocql.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

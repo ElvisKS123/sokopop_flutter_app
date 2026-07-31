@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Row(
                   children: [
-                    Text('Good morning ', style: AppTheme.headlineMd),
+                    Text('Welcome Back ', style: AppTheme.headlineMd),
                     const Text('👋', style: TextStyle(fontSize: 22)),
                   ],
                 ),
