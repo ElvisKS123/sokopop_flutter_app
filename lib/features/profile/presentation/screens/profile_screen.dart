@@ -190,7 +190,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   GestureDetector(
                     onTap: () async {
                       await context.read<AuthProvider>().signOut();
-                      if (mounted) {
+                      if (context.mounted) {
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(builder: (_) => const SplashScreen()),
                           (route) => false,
@@ -285,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
+          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [
@@ -296,7 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 56,
                 height: 56,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   width: 56,
                   height: 56,
                   color: AppTheme.surfaceContainerLow,
@@ -349,13 +349,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _divider() {
     return Container(
-<<<<<<< HEAD:lib/screens/profile_screen.dart
-        width: 1, height: 30, color: AppTheme.outlineVariant.withValues(alpha: 0.5));
-=======
         width: 1,
         height: 30,
-        color: AppTheme.outlineVariant.withOpacity(0.5));
->>>>>>> 3afd0fb0b46fa5d6aac4ab866b4cc43aeeecc2df:lib/features/profile/presentation/screens/profile_screen.dart
+        color: AppTheme.outlineVariant.withValues(alpha: 0.5));
   }
 
   Widget _menuItem(IconData icon, String title, String subtitle, Color iconBg,
@@ -368,12 +364,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-<<<<<<< HEAD:lib/screens/profile_screen.dart
-          border: Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
-=======
           border:
-              Border.all(color: AppTheme.outlineVariant.withOpacity(0.5)),
->>>>>>> 3afd0fb0b46fa5d6aac4ab866b4cc43aeeecc2df:lib/features/profile/presentation/screens/profile_screen.dart
+              Border.all(color: AppTheme.outlineVariant.withValues(alpha: 0.5)),
         ),
         child: Row(
           children: [

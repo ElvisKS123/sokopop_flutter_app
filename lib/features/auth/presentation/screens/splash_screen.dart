@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD:lib/screens/splash_screen.dart
-import '../theme/app_theme.dart';
-=======
 import 'package:sokopop_flutter_app/core/theme/app_theme.dart';
-import 'package:sokopop_flutter_app/shared/widgets/shared_widgets.dart';
->>>>>>> 3afd0fb0b46fa5d6aac4ab866b4cc43aeeecc2df:lib/features/auth/presentation/screens/splash_screen.dart
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
